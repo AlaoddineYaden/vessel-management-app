@@ -1,0 +1,1 @@
+default_app_config = 'safety_procedures.apps.SafetyProceduresConfig'
