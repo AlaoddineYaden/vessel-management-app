@@ -15,7 +15,7 @@ class CertificateAdmin(admin.ModelAdmin):
     list_filter = ('status', 'certificate_type', 'issuing_authority')
     search_fields = ('certificate_name', 'certificate_number', 'vessel_id')
     date_hierarchy = 'expiry_date'
-
+    list_per_page = 20
 @admin.register(CertificateRenewal)
 class CertificateRenewalAdmin(admin.ModelAdmin):
     list_display = ('certificate', 'status', 'initiated_date', 'due_date', 'completed_date')
