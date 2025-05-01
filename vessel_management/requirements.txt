@@ -49,5 +49,5 @@ sentry-sdk==1.39.1
 coverage==7.4.1
 factory-boy==3.3.0
 
-
-
+django-jazzmin==3.0.1
+django>=4.2 
