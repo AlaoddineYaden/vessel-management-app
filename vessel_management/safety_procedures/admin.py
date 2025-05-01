@@ -13,6 +13,7 @@ class ProcedureCategoryAdmin(admin.ModelAdmin):
     list_filter = ['parent']
     search_fields = ['name', 'code', 'description']
     ordering = ['order', 'code']
+    list_per_page = 20
 
 
 class ProcedureVersionInline(admin.TabularInline):
@@ -66,6 +67,7 @@ class ProcedureAdmin(admin.ModelAdmin):
         }),
     ]
     inlines = [ProcedureVersionInline, ProcedureReviewInline, ProcedureAcknowledgmentInline]
+    list_per_page = 20
 
 
 class ProcedureVersionAdmin(admin.ModelAdmin):
@@ -73,6 +75,7 @@ class ProcedureVersionAdmin(admin.ModelAdmin):
     list_filter = ['created_by']
     search_fields = ['procedure__title', 'version', 'change_notes']
     readonly_fields = ['created_date']
+    list_per_page = 20
 
 
 class ProcedureReviewAdmin(admin.ModelAdmin):
@@ -80,6 +83,7 @@ class ProcedureReviewAdmin(admin.ModelAdmin):
     list_filter = ['approved', 'changes_required', 'reviewed_by']
     search_fields = ['procedure__title', 'comments']
     readonly_fields = ['review_date']
+    list_per_page = 20
 
 
 class ProcedureAcknowledgmentAdmin(admin.ModelAdmin):
@@ -87,6 +91,7 @@ class ProcedureAcknowledgmentAdmin(admin.ModelAdmin):
     list_filter = ['user', 'acknowledged_version']
     search_fields = ['procedure__title', 'comments']
     readonly_fields = ['acknowledged_date']
+    list_per_page = 20
 
 
 # Register models with their respective admin classes

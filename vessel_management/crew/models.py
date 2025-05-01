@@ -3,6 +3,7 @@ from django.db import models
 from django.utils import timezone
 from django.core.validators import RegexValidator
 from django.conf import settings
+from core.models import BaseModel
 
 
 class Crew(models.Model):
@@ -147,6 +148,10 @@ class CrewAssignment(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
+    class Meta:
+        unique_together = ['crew', 'vessel', 'start_date']
+        ordering = ['-start_date']
+    
     def __str__(self):
         end_info = f" to {self.end_date}" if self.end_date else " (current)"
         return f"{self.crew.name} - {self.vessel.name} - {self.get_rank_display()} - {self.start_date}{end_info}"
@@ -158,7 +163,7 @@ class CrewAssignment(models.Model):
         super().save(*args, **kwargs)
 
 
-class CertificateNotification(models.Model):
+class CertificateNotification(BaseModel):
     """
     Model for storing certificate expiry notifications.
     """
@@ -169,21 +174,15 @@ class CertificateNotification(models.Model):
         ('RESOLVED', 'Resolved'),
     ]
     
-    id = models.AutoField(primary_key=True)
     certificate = models.ForeignKey(CrewCertificate, related_name='notifications', on_delete=models.CASCADE)
     notification_date = models.DateField(auto_now_add=True)
     days_before_expiry = models.IntegerField()
     status = models.CharField(max_length=15, choices=STATUS_CHOICES, default='PENDING')
     message = models.TextField()
     sent_to = models.EmailField(blank=True, null=True)
-    acknowledged_by = models.ForeignKey(
-        settings.AUTH_USER_MODEL, 
-        on_delete=models.SET_NULL, 
-        null=True, 
-        blank=True,
-        related_name='acknowledged_notifications'
-    )
-    acknowledged_at = models.DateTimeField(null=True, blank=True)
+    
+    class Meta:
+        ordering = ['-created_at']
     
     def __str__(self):
         return f"Notification for {self.certificate.certificate_name} - {self.certificate.crew.name}"

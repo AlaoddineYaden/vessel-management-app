@@ -49,6 +49,7 @@ class Certificate(models.Model):
         # Auto-update status based on expiry date
         today = timezone.now().date()
         days_to_expiry = (self.expiry_date - today).days
+        old_status = self.status
         
         if self.status not in ['revoked', 'suspended', 'pending']:
             if days_to_expiry <= 0:
@@ -60,11 +61,16 @@ class Certificate(models.Model):
                 
         super().save(*args, **kwargs)
         
-        # Create renewal record if not exists and expiring soon
-        if self.status == 'expiring_soon':
+        # Create renewal record if certificate is expired or expiring soon
+        if self.status in ['expired', 'expiring_soon']:
             CertificateRenewal.objects.get_or_create(
                 certificate=self,
-                defaults={'status': 'pending', 'due_date': self.expiry_date}
+                defaults={
+                    'status': 'pending',
+                    'due_date': self.expiry_date,
+                    'renewal_cost': None,
+                    'notes': f'Certificate {self.status.replace("_", " ")} - renewal required',
+                }
             )
 
 # No changes needed to CertificateRenewal model

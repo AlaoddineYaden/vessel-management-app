@@ -7,6 +7,7 @@ class ReportAdmin(admin.ModelAdmin):
     list_filter = ('report_type', 'is_public', 'created_date')
     search_fields = ('name', 'description')
     date_hierarchy = 'created_date'
+    list_per_page = 20
 
 
 class SavedReportAdmin(admin.ModelAdmin):
@@ -14,6 +15,7 @@ class SavedReportAdmin(admin.ModelAdmin):
     list_filter = ('file_format', 'generated_date', 'report__report_type')
     search_fields = ('report__name',)
     date_hierarchy = 'generated_date'
+    list_per_page = 20
 
 
 class ReportScheduleAdmin(admin.ModelAdmin):
@@ -21,6 +23,7 @@ class ReportScheduleAdmin(admin.ModelAdmin):
     list_filter = ('frequency', 'is_active', 'output_format')
     search_fields = ('name', 'report__name')
     date_hierarchy = 'created_date'
+    list_per_page = 20
 
 
 class DashboardMetricAdmin(admin.ModelAdmin):
@@ -28,6 +31,7 @@ class DashboardMetricAdmin(admin.ModelAdmin):
     list_filter = ('metric_type', 'is_active')
     search_fields = ('name', 'description')
     list_editable = ('display_order', 'is_active', 'refresh_interval_minutes')
+    list_per_page = 20
 
 
 admin.site.register(Report, ReportAdmin)

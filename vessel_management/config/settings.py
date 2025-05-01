@@ -40,11 +40,9 @@ INSTALLED_APPS = [
     'certificates',
     'vessel_pms',
     'safety_procedures',
-    'audit_inspection',
     'nc_module',
     'ism_compliance',
     'vessel_reporting',
-
 ]
 
 MIDDLEWARE = [

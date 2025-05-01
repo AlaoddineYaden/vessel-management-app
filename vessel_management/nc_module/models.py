@@ -2,8 +2,9 @@
 from django.db import models
 from django.conf import settings
 from django.utils import timezone
+from core.models import BaseModel
 
-class NonConformity(models.Model):
+class NonConformity(BaseModel):
     SEVERITY_CHOICES = [
         ('LOW', 'Low'),
         ('MEDIUM', 'Medium'),
@@ -35,14 +36,14 @@ class NonConformity(models.Model):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='OPEN')
     root_cause = models.TextField(blank=True, null=True)
     reference_documents = models.TextField(blank=True, null=True)
-    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name='created_nonconformities')
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['-created_at']
     
     def __str__(self):
         return f"NC-{self.id}: {self.description[:50]}"
 
-class CorrectiveAction(models.Model):
+class CorrectiveAction(BaseModel):
     VERIFICATION_STATUS_CHOICES = [
         ('PENDING', 'Pending'),
         ('VERIFIED', 'Verified'),
@@ -56,8 +57,9 @@ class CorrectiveAction(models.Model):
     completed_date = models.DateField(null=True, blank=True)
     verification_status = models.CharField(max_length=20, choices=VERIFICATION_STATUS_CHOICES, default='PENDING')
     verification_comments = models.TextField(blank=True, null=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['-created_at']
     
     def __str__(self):
         return f"CA-{self.id}: {self.description[:50]}"
@@ -68,16 +70,17 @@ class CorrectiveAction(models.Model):
             return False
         return self.due_date < timezone.now().date()
 
-class EvidenceFile(models.Model):
+class EvidenceFile(BaseModel):
     corrective_action = models.ForeignKey(CorrectiveAction, on_delete=models.CASCADE, related_name='evidence_files')
     file = models.FileField(upload_to='evidence_files/')
-    uploaded_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name='uploaded_evidence_files')
-    uploaded_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        ordering = ['-created_at']
     
     def __str__(self):
         return f"Evidence-{self.id}: {self.file.name}"
 
-class PreventiveAction(models.Model):
+class PreventiveAction(BaseModel):
     STATUS_CHOICES = [
         ('PENDING', 'Pending'),
         ('IN_PROGRESS', 'In Progress'),
@@ -91,13 +94,14 @@ class PreventiveAction(models.Model):
     due_date = models.DateField()
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='PENDING')
     completed_date = models.DateField(null=True, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['-created_at']
     
     def __str__(self):
         return f"PA-{self.id}: {self.description[:50]}"
 
-class NCAttachment(models.Model):
+class NCAttachment(BaseModel):
     """
     Model for storing attachments related to non-conformities.
     """
@@ -106,26 +110,28 @@ class NCAttachment(models.Model):
     file = models.FileField(upload_to='nc_attachments/')
     file_type = models.CharField(max_length=50)
     file_size = models.PositiveIntegerField()
-    uploaded_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name='uploaded_nc_attachments')
-    uploaded_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        ordering = ['-created_at']
     
     def __str__(self):
         return f"{self.file_name} - NC-{self.non_conformity.id}"
 
-class NCComment(models.Model):
+class NCComment(BaseModel):
     """
     Model for storing comments on non-conformities.
     """
     non_conformity = models.ForeignKey(NonConformity, on_delete=models.CASCADE, related_name='comments')
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name='nc_comments')
     comment = models.TextField()
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['-created_at']
     
     def __str__(self):
         return f"Comment by {self.user} on NC-{self.non_conformity.id}"
 
-class NCHistory(models.Model):
+class NCHistory(BaseModel):
     """
     Model for tracking history of changes to non-conformities.
     """
@@ -144,7 +150,9 @@ class NCHistory(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name='nc_history_entries')
     action = models.CharField(max_length=20, choices=ACTION_CHOICES)
     details = models.TextField(blank=True, null=True)
-    timestamp = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        ordering = ['-created_at']
     
     def __str__(self):
         return f"{self.action} on NC-{self.non_conformity.id} by {self.user}"

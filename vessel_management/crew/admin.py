@@ -60,7 +60,7 @@ class CrewCertificateAdmin(admin.ModelAdmin):
                    'issue_date', 'expiry_date', 'expiry_status')
     list_filter = ('certificate_type', 'issuing_authority')
     search_fields = ('certificate_name', 'certificate_number', 'crew__name')
-    
+   
     def crew_name(self, obj):
         return obj.crew.name
     
@@ -90,17 +90,6 @@ class CrewCertificateAdmin(admin.ModelAdmin):
     expiry_status.short_description = "Expiry Status"
 
 
-@admin.register(Vessel)
-class VesselAdmin(admin.ModelAdmin):
-    list_display = ('name', 'imo_number', 'vessel_type', 'crew_count')
-    search_fields = ('name', 'imo_number')
-    
-    def crew_count(self, obj):
-        return obj.crew_assignments.filter(is_current=True).count()
-    
-    crew_count.short_description = "Current Crew"
-
-
 @admin.register(CrewAssignment)
 class CrewAssignmentAdmin(admin.ModelAdmin):
     list_display = ('crew_name', 'vessel_name', 'rank', 'start_date', 'end_date', 'is_current')
@@ -120,26 +109,49 @@ class CrewAssignmentAdmin(admin.ModelAdmin):
 
 @admin.register(CertificateNotification)
 class CertificateNotificationAdmin(admin.ModelAdmin):
-    list_display = ('certificate_info', 'crew_name', 'notification_date', 'days_before_expiry', 'status')
-    list_filter = ('status', 'days_before_expiry')
-    actions = ['mark_as_sent', 'mark_as_resolved']
+    list_display = ('certificate_info', 'crew_name', 'notification_date', 'days_before_expiry', 'status', 'created_at', 'message_preview')
+    list_filter = ('status', 'days_before_expiry', 'created_at', 'notification_date')
+    search_fields = ('certificate__certificate_name', 'certificate__crew__name', 'message')
+    list_per_page = 20
+    date_hierarchy = 'created_at'
+    actions = ['mark_as_sent', 'mark_as_resolved', 'mark_as_acknowledged']
     
     def certificate_info(self, obj):
-        return f"{obj.certificate.certificate_name} ({obj.certificate.certificate_type})"
-    
+        return format_html(
+            '<strong>{}</strong> ({})',
+            obj.certificate.certificate_name,
+            obj.certificate.certificate_type
+        )
     certificate_info.short_description = "Certificate"
+    certificate_info.admin_order_field = 'certificate__certificate_name'
     
     def crew_name(self, obj):
         return obj.certificate.crew.name
-    
     crew_name.short_description = "Crew Member"
+    crew_name.admin_order_field = 'certificate__crew__name'
+    
+    def message_preview(self, obj):
+        return format_html(
+            '<span title="{}">{}</span>',
+            obj.message,
+            obj.message[:50] + '...' if len(obj.message) > 50 else obj.message
+        )
+    message_preview.short_description = "Message Preview"
     
     def mark_as_sent(self, request, queryset):
         queryset.update(status='SENT')
-    
     mark_as_sent.short_description = "Mark selected notifications as sent"
     
     def mark_as_resolved(self, request, queryset):
         queryset.update(status='RESOLVED')
-    
     mark_as_resolved.short_description = "Mark selected notifications as resolved"
+    
+    def mark_as_acknowledged(self, request, queryset):
+        queryset.update(status='ACKNOWLEDGED')
+    mark_as_acknowledged.short_description = "Mark selected notifications as acknowledged"
+    
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related(
+            'certificate',
+            'certificate__crew'
+        )

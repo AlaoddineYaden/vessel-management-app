@@ -9,8 +9,8 @@ from .models import NonConformity, CorrectiveAction, EvidenceFile, PreventiveAct
 class EvidenceFileInline(admin.TabularInline):
     model = EvidenceFile
     extra = 1
-    readonly_fields = ['uploaded_by', 'uploaded_at', 'file_preview']
-    fields = ['file', 'file_preview', 'uploaded_by', 'uploaded_at']
+    readonly_fields = ['created_by', 'created_at', 'file_preview']
+    fields = ['file', 'file_preview', 'created_by', 'created_at']
     
     def file_preview(self, obj):
         if obj.file:
@@ -34,7 +34,7 @@ class PreventiveActionInline(admin.TabularInline):
 class NCAttachmentInline(admin.TabularInline):
     model = NCAttachment
     extra = 0
-    readonly_fields = ['uploaded_at']
+    readonly_fields = ['created_at']
 
 
 class NCCommentInline(admin.TabularInline):
@@ -46,7 +46,7 @@ class NCCommentInline(admin.TabularInline):
 class NCHistoryInline(admin.TabularInline):
     model = NCHistory
     extra = 0
-    readonly_fields = ['timestamp']
+    readonly_fields = ['created_at']
     can_delete = False
 
 
@@ -98,23 +98,22 @@ class CorrectiveActionAdmin(admin.ModelAdmin):
     list_filter = ['verification_status', 'due_date', 'completed_date', 'assigned_to']
     search_fields = ['description', 'verification_comments']
     readonly_fields = ['created_at', 'updated_at']
-    date_hierarchy = 'due_date'
     
     def non_conformity_link(self, obj):
-        url = reverse('admin:nc_module_nonconformity_change', args=[obj.non_conformity_id])
+        url = reverse('admin:nc_module_nonconformity_change', args=[obj.non_conformity.id])
         return format_html('<a href="{}">{}</a>', url, obj.non_conformity)
     non_conformity_link.short_description = "Non-Conformity"
-
+    list_per_page = 20
 
 @admin.register(EvidenceFile)
 class EvidenceFileAdmin(admin.ModelAdmin):
-    list_display = ['id', 'corrective_action_link', 'file', 'uploaded_by', 'uploaded_at']
-    list_filter = ['uploaded_at', 'uploaded_by']
+    list_display = ['id', 'corrective_action_link', 'file', 'created_by', 'created_at']
+    list_filter = ['created_at', 'created_by']
     search_fields = ['file']
-    readonly_fields = ['uploaded_at']
+    readonly_fields = ['created_at']
     
     def corrective_action_link(self, obj):
-        url = reverse('admin:nc_module_correctiveaction_change', args=[obj.corrective_action_id])
+        url = reverse('admin:nc_module_correctiveaction_change', args=[obj.corrective_action.id])
         return format_html('<a href="{}">{}</a>', url, obj.corrective_action)
     corrective_action_link.short_description = "Corrective Action"
 
@@ -131,17 +130,17 @@ class PreventiveActionAdmin(admin.ModelAdmin):
     date_hierarchy = 'due_date'
     
     def non_conformity_link(self, obj):
-        url = reverse('admin:nc_module_nonconformity_change', args=[obj.non_conformity_id])
+        url = reverse('admin:nc_module_nonconformity_change', args=[obj.non_conformity.id])
         return format_html('<a href="{}">{}</a>', url, obj.non_conformity)
     non_conformity_link.short_description = "Non-Conformity"
 
 
 @admin.register(NCAttachment)
 class NCAttachmentAdmin(admin.ModelAdmin):
-    list_display = ['file_name', 'non_conformity', 'file_type', 'file_size', 'uploaded_by', 'uploaded_at']
-    list_filter = ['file_type', 'uploaded_at']
+    list_display = ['file_name', 'non_conformity', 'file_type', 'file_size', 'created_by', 'created_at']
+    list_filter = ['file_type', 'created_at']
     search_fields = ['file_name', 'non_conformity__title']
-    readonly_fields = ['uploaded_at']
+    readonly_fields = ['created_at']
 
 
 @admin.register(NCComment)
@@ -154,7 +153,7 @@ class NCCommentAdmin(admin.ModelAdmin):
 
 @admin.register(NCHistory)
 class NCHistoryAdmin(admin.ModelAdmin):
-    list_display = ['non_conformity', 'user', 'action', 'timestamp']
-    list_filter = ['action', 'user', 'timestamp']
+    list_display = ['non_conformity', 'user', 'action', 'created_at']
+    list_filter = ['action', 'user', 'created_at']
     search_fields = ['details', 'non_conformity__title', 'user__username']
-    readonly_fields = ['timestamp']
+    readonly_fields = ['created_at']

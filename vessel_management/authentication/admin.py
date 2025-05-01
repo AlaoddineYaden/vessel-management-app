@@ -13,6 +13,7 @@ class CustomUserAdmin(UserAdmin):
     list_filter = ('role', 'is_active', 'date_joined')
     search_fields = ('email', 'username', 'first_name', 'last_name')
     ordering = ('email',)
+    list_per_page = 20
     
     fieldsets = (
         (None, {'fields': ('email', 'username', 'password')}),

@@ -34,7 +34,6 @@ urlpatterns = [
     path('api/v1/certificates/', include('certificates.urls')),
     path('api/v1/maintenance/', include('vessel_pms.urls')),
     path('api/v1/safety/', include('safety_procedures.urls')),
-    path('api/v1/audits/', include('audit_inspection.urls')),
     path('api/v1/nc/', include('nc_module.urls')),
     path('api/v1/ism/', include('ism_compliance.urls')),
     path('api/v1/reporting/', include('vessel_reporting.urls')),

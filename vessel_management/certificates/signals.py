@@ -20,8 +20,31 @@ def update_certificate_status(sender, instance, created, **kwargs):
         if days_to_expiry <= 0:
             instance.status = 'expired'
             status_changed = True
+            # Create renewal record for expired certificates
+            CertificateRenewal.objects.get_or_create(
+                certificate=instance,
+                defaults={
+                    'status': 'pending',
+                    'due_date': instance.expiry_date,
+                    'renewal_cost': None,
+                    'notes': 'Certificate expired - renewal required',
+                }
+            )
         elif days_to_expiry <= 30:  # 30 days warning period
             instance.status = 'expiring_soon'
+            status_changed = True
+            # Create renewal record for expiring certificates
+            CertificateRenewal.objects.get_or_create(
+                certificate=instance,
+                defaults={
+                    'status': 'pending',
+                    'due_date': instance.expiry_date,
+                    'renewal_cost': None,
+                    'notes': 'Certificate expiring soon - renewal required',
+                }
+            )
+        else:
+            instance.status = 'active'
             status_changed = True
             
         if status_changed:

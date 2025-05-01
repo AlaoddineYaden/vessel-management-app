@@ -7,6 +7,7 @@ class EquipmentAdmin(admin.ModelAdmin):
     list_filter = ('status', 'manufacturer', 'location')
     search_fields = ('name', 'model', 'serial_number')
     date_hierarchy = 'installation_date'
+    list_per_page = 20
 
 
 @admin.register(MaintenanceTask)
@@ -15,6 +16,7 @@ class MaintenanceTaskAdmin(admin.ModelAdmin):
     list_filter = ('status', 'interval_type', 'responsible_role')
     search_fields = ('task_name', 'equipment__name', 'description')
     date_hierarchy = 'next_due_date'
+    list_per_page = 20
 
 
 @admin.register(MaintenanceHistory)
@@ -23,3 +25,4 @@ class MaintenanceHistoryAdmin(admin.ModelAdmin):
     list_filter = ('completed_date', 'equipment')
     search_fields = ('task__task_name', 'equipment__name', 'remarks')
     date_hierarchy = 'completed_date'
+    list_per_page = 20
