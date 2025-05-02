@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .warning {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        .info {
+            background-color: #e9ecef;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .footer {
+            margin-top: 20px;
+            font-size: 0.9em;
+            color: #6c757d;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>Certificate Expiry Notification</h2>
+        </div>
+        
+        <p>Dear {{ crew_member.name }},</p>
+        
+        <div class="info">
+            <p class="warning">{{ message }}</p>
+            
+            <p><strong>Certificate Details:</strong></p>
+            <ul>
+                <li>Certificate Name: {{ certificate.certificate_name }}</li>
+                <li>Certificate Type: {{ certificate.certificate_type }}</li>
+                <li>Certificate Number: {{ certificate.certificate_number }}</li>
+                <li>Expiry Date: {{ expiry_date|date:"F d, Y" }}</li>
+                <li>Days Remaining: {{ days_until_expiry }}</li>
+            </ul>
+        </div>
+        
+        <p>Please take the necessary actions to renew your certificate before the expiry date.</p>
+        
+        <div class="footer">
+            <p>This is an automated notification from the Vessel Management System.</p>
+            <p>Please do not reply to this email.</p>
+        </div>
+    </div>
+</body>
+</html> 

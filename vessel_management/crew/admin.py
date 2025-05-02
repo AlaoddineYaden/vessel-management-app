@@ -2,7 +2,11 @@
 from django.contrib import admin
 from django.utils.html import format_html
 from django.utils import timezone
+from django.urls import path
+from django.shortcuts import redirect
+from django.contrib import messages
 from .models import Crew, CrewCertificate, CrewAssignment, Vessel, CertificateNotification
+from .utils import send_certificate_notification_email
 
 
 class CrewCertificateInline(admin.TabularInline):
@@ -60,7 +64,7 @@ class CrewCertificateAdmin(admin.ModelAdmin):
                    'issue_date', 'expiry_date', 'expiry_status')
     list_filter = ('certificate_type', 'issuing_authority')
     search_fields = ('certificate_name', 'certificate_number', 'crew__name')
-   
+    list_per_page = 20
     def crew_name(self, obj):
         return obj.crew.name
     
@@ -109,12 +113,65 @@ class CrewAssignmentAdmin(admin.ModelAdmin):
 
 @admin.register(CertificateNotification)
 class CertificateNotificationAdmin(admin.ModelAdmin):
-    list_display = ('certificate_info', 'crew_name', 'notification_date', 'days_before_expiry', 'status', 'created_at', 'message_preview')
+    list_display = ('certificate_info', 'crew_name', 'notification_date', 'days_before_expiry', 'status', 'created_at', 'message_preview', 'send_email_button')
     list_filter = ('status', 'days_before_expiry', 'created_at', 'notification_date')
     search_fields = ('certificate__certificate_name', 'certificate__crew__name', 'message')
     list_per_page = 20
     date_hierarchy = 'created_at'
-    actions = ['mark_as_sent', 'mark_as_resolved', 'mark_as_acknowledged']
+    actions = ['mark_as_sent', 'mark_as_resolved', 'mark_as_acknowledged', 'send_notification_emails']
+    
+    def get_urls(self):
+        urls = super().get_urls()
+        custom_urls = [
+            path(
+                '<int:notification_id>/send-email/',
+                self.admin_site.admin_view(self.send_notification_email),
+                name='crew-certificatenotification-send-email',
+            ),
+        ]
+        return custom_urls + urls
+    
+    def send_notification_email(self, request, notification_id):
+        notification = CertificateNotification.objects.get(id=notification_id)
+        try:
+            send_certificate_notification_email(notification)
+            messages.success(request, f'Email notification sent successfully to {notification.sent_to}')
+        except Exception as e:
+            messages.error(request, f'Failed to send email: {str(e)}')
+        return redirect('admin:crew_certificatenotification_changelist')
+    
+    def send_email_button(self, obj):
+        if obj.status != 'SENT' and obj.sent_to:
+            return format_html(
+                '<a class="button" href="{}">Send Email</a>',
+                f'admin:crew-certificatenotification-send-email',
+                obj.id
+            )
+        return format_html(
+            '<span style="color: green;">✓ Sent</span>' if obj.status == 'SENT' else 
+            '<span style="color: red;">No email address</span>'
+        )
+    send_email_button.short_description = 'Email Status'
+    send_email_button.allow_tags = True
+    
+    def send_notification_emails(self, request, queryset):
+        success_count = 0
+        error_count = 0
+        
+        for notification in queryset:
+            if notification.status != 'SENT' and notification.sent_to:
+                try:
+                    send_certificate_notification_email(notification)
+                    success_count += 1
+                except Exception as e:
+                    error_count += 1
+                    messages.error(request, f'Failed to send email to {notification.sent_to}: {str(e)}')
+        
+        if success_count:
+            messages.success(request, f'Successfully sent {success_count} email notifications.')
+        if error_count:
+            messages.warning(request, f'Failed to send {error_count} email notifications.')
+    send_notification_emails.short_description = "Send email notifications"
     
     def certificate_info(self, obj):
         return format_html(

@@ -9,31 +9,43 @@ from .models import CrewCertificate, CertificateNotification
 def check_certificate_expiry(sender, instance, created, **kwargs):
     """
     When a certificate is created or updated, check if it's close to expiry
-    and create notifications if needed.
+    and create a single notification at the appropriate threshold.
     """
-    if not created and not kwargs.get('raw', False):
-        return  # Only run for newly created certificates
+    if kwargs.get('raw', False):
+        return  # Skip for raw saves
     
     today = timezone.now().date()
-    days_thresholds = [30, 60, 90]  # Notify at 90, 60, and 30 days before expiry
+    days_until_expiry = (instance.expiry_date - today).days
     
-    for days in days_thresholds:
-        days_until_expiry = (instance.expiry_date - today).days
-        
-        # If the certificate is expiring within our threshold window
-        if 0 <= days_until_expiry <= days:
-            # Check if we already have a notification for this threshold
-            notification_exists = CertificateNotification.objects.filter(
-                certificate=instance,
-                days_before_expiry=days
-            ).exists()
-            
-            if not notification_exists:
-                # Create a notification
-                message = f"Certificate '{instance.certificate_name}' for {instance.crew.name} will expire in {days_until_expiry} days on {instance.expiry_date}."
-                CertificateNotification.objects.create(
-                    certificate=instance,
-                    days_before_expiry=days,
-                    message=message,
-                    sent_to=instance.crew.email
-                )
+    # Delete any existing notifications for this certificate
+    CertificateNotification.objects.filter(certificate=instance).delete()
+    
+    # Handle expired certificates
+    if days_until_expiry < 0:
+        message = f"Certificate '{instance.certificate_name}' for {instance.crew.name} has expired {abs(days_until_expiry)} days ago."
+        CertificateNotification.objects.create(
+            certificate=instance,
+            days_before_expiry=0,
+            message=message,
+            sent_to=instance.crew.email
+        )
+        return
+    
+    # Determine which threshold we're at (90, 60, or 30 days)
+    threshold = None
+    if 0 <= days_until_expiry <= 30:
+        threshold = 30
+    elif 31 <= days_until_expiry <= 60:
+        threshold = 60
+    elif 61 <= days_until_expiry <= 90:
+        threshold = 90
+    
+    if threshold is not None:
+        # Create a new notification for the current threshold
+        message = f"Certificate '{instance.certificate_name}' for {instance.crew.name} will expire in {days_until_expiry} days on {instance.expiry_date}."
+        CertificateNotification.objects.create(
+            certificate=instance,
+            days_before_expiry=threshold,
+            message=message,
+            sent_to=instance.crew.email
+        )
