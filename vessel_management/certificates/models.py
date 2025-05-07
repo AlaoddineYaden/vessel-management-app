@@ -2,7 +2,7 @@
 from django.db import models
 from django.utils import timezone
 from django.conf import settings
-from crew.models import Vessel  # Adjust the import path as needed
+from core.models import Vessel  # Adjust the import path as needed
 
 class CertificateType(models.Model):
     # No changes needed here

@@ -8,5 +8,5 @@ class CrewConfig(AppConfig):
     verbose_name = 'Vessel Crew Management'
     
     def ready(self):
-        # Import signal handlers
+        # Import signals to ensure they are registered
         import crew.signals

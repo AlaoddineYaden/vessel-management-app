@@ -2,8 +2,44 @@
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
-from .models import CrewCertificate, CertificateNotification
+from django.contrib.auth.models import Group
+from .models import CrewCertificate, CertificateNotification, Crew
 
+@receiver(post_save, sender=Crew)
+def assign_crew_to_group(sender, instance, created, **kwargs):
+    """
+    When a crew member is created or updated, automatically assign them to the group
+    corresponding to their rank.
+    """
+    if kwargs.get('raw', False):
+        return  # Skip for raw saves
+
+    # Map of ranks to group names
+    rank_to_group = {
+        'FLEET MANAGER': 'Fleet Manager',
+        'CHIEF ENGINEER': 'Chief Engineer',
+        'SECOND ENGINEER': 'Second Engineer',
+        'CHIEF OFFICER': 'Chief Officer',
+        'SECOND OFFICER': 'Second Officer',
+        'THIRD OFFICER': 'Third Officer',
+        'CAPTAIN': 'Captain',
+        'DECK CREW': 'Deck Crew',
+        'ENGINE CREW': 'Engine Crew',
+    }
+
+    # Get the group name for the crew member's rank
+    group_name = rank_to_group.get(instance.rank.upper())
+    if not group_name:
+        return  # Skip if rank doesn't map to a group
+
+    # Get the group
+    group = Group.objects.get(name=group_name)
+
+    # Remove the crew member from all groups first
+    instance.user.groups.clear()
+
+    # Add the crew member to the appropriate group
+    instance.user.groups.add(group)
 
 @receiver(post_save, sender=CrewCertificate)
 def check_certificate_expiry(sender, instance, created, **kwargs):

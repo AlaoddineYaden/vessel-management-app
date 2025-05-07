@@ -1,6 +1,7 @@
 from django.contrib import admin
 from .models import Vessel, SystemLog, File
 
+
 @admin.register(Vessel)
 class VesselAdmin(admin.ModelAdmin):
     list_display = ('name', 'imo_number', 'vessel_type', 'flag', 'build_year', 'is_active')

@@ -7,7 +7,7 @@ class CertificateTypeAdmin(admin.ModelAdmin):
     list_display = ('name', 'is_statutory', 'renewal_period_days')
     search_fields = ('name',)
     list_filter = ('is_statutory',)
-
+    list_per_page = 20
 @admin.register(Certificate)
 class CertificateAdmin(admin.ModelAdmin):
     list_display = ('certificate_name', 'certificate_number', 'certificate_type', 
@@ -22,3 +22,4 @@ class CertificateRenewalAdmin(admin.ModelAdmin):
     list_filter = ('status',)
     search_fields = ('certificate__certificate_name', 'certificate__certificate_number')
     date_hierarchy = 'due_date'
+    list_per_page = 20
