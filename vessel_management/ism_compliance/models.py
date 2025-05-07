@@ -3,6 +3,7 @@ from django.conf import settings
 from django.utils import timezone
 import uuid
 import os
+from core.models import Vessel
 
 def evidence_file_path(instance, filename):
     """Generate a unique file path for evidence documents"""
@@ -69,7 +70,7 @@ class ComplianceItem(models.Model):
     
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     ism_requirement = models.ForeignKey(ISMRequirement, on_delete=models.CASCADE, related_name='compliance_items')
-    vessel_id = models.UUIDField(help_text="Reference to vessel in the main application")
+    vessel = models.ForeignKey(Vessel, on_delete=models.CASCADE, related_name='compliance_items')
     compliance_status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending_review')
     risk_level = models.CharField(max_length=10, choices=RISK_LEVEL_CHOICES, default='medium')
     assessment_date = models.DateTimeField(default=timezone.now)
@@ -87,14 +88,14 @@ class ComplianceItem(models.Model):
     class Meta:
         ordering = ['-assessment_date']
         indexes = [
-            models.Index(fields=['vessel_id']),
+            models.Index(fields=['vessel']),
             models.Index(fields=['compliance_status']),
             models.Index(fields=['assessment_date']),
         ]
-        unique_together = ['ism_requirement', 'vessel_id']
+        unique_together = ['ism_requirement', 'vessel']
         
     def __str__(self):
-        return f"Compliance item for vessel {self.vessel_id} - {self.ism_requirement.requirement_code}"
+        return f"Compliance item for vessel {self.vessel.name} - {self.ism_requirement.requirement_code}"
 
 
 class ComplianceEvidence(models.Model):

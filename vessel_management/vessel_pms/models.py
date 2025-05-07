@@ -3,6 +3,7 @@ from django.conf import settings
 from django.utils import timezone
 from datetime import timedelta
 from dateutil.relativedelta import relativedelta
+from core.models import Vessel
 
 class Equipment(models.Model):
     """Model for vessel equipment that requires maintenance"""
@@ -20,6 +21,7 @@ class Equipment(models.Model):
     manufacturer = models.CharField(max_length=100)
     installation_date = models.DateField()
     location = models.CharField(max_length=100)
+    vessel = models.ForeignKey(Vessel, on_delete=models.CASCADE, related_name='equipment')
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='operational')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

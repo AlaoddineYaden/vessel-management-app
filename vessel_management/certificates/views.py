@@ -39,12 +39,11 @@ class CertificateViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['get'])
     def get_by_vessel(self, request):
         """Get all certificates for a specific vessel"""
-        vessel_id = request.query_params.get('vessel_id')
+        vessel_id = request.query_params.get('vessel')
         if not vessel_id:
-            return Response({"error": "vessel_id parameter is required"}, 
+            return Response({"error": "vessel parameter is required"}, 
                           status=status.HTTP_400_BAD_REQUEST)
             
-        # Update to use the vessel field
         queryset = Certificate.objects.filter(vessel_id=vessel_id)
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)

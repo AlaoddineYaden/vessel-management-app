@@ -2,7 +2,7 @@ from django.core.management.base import BaseCommand
 from django.utils import timezone
 from datetime import timedelta
 from ism_compliance.models import ISMRequirement, ComplianceItem, ComplianceReview
-from crew.models import Vessel
+from core.models import Vessel
 from django.contrib.auth import get_user_model
 
 User = get_user_model()

@@ -2,7 +2,7 @@
 from django.db import models
 from django.conf import settings
 from django.utils import timezone
-from core.models import BaseModel
+from core.models import BaseModel, Vessel
 
 class NonConformity(BaseModel):
     SEVERITY_CHOICES = [
@@ -32,7 +32,7 @@ class NonConformity(BaseModel):
     source_type = models.CharField(max_length=20, choices=SOURCE_CHOICES)
     source_id = models.CharField(max_length=100, blank=True, null=True)
     severity = models.CharField(max_length=10, choices=SEVERITY_CHOICES)
-    vessel_id = models.IntegerField()
+    vessel = models.ForeignKey(Vessel, on_delete=models.CASCADE, related_name='non_conformities')
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='OPEN')
     root_cause = models.TextField(blank=True, null=True)
     reference_documents = models.TextField(blank=True, null=True)

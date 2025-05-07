@@ -53,10 +53,10 @@ class NCHistoryInline(admin.TabularInline):
 @admin.register(NonConformity)
 class NonConformityAdmin(admin.ModelAdmin):
     list_display = [
-        'id', 'source_type', 'severity', 'vessel_id', 'status', 
+        'id', 'source_type', 'severity', 'vessel', 'status', 
         'detection_date', 'corrective_actions_count', 'created_by', 'created_at'
     ]
-    list_filter = ['status', 'source_type', 'severity', 'detection_date', 'vessel_id']
+    list_filter = ['status', 'source_type', 'severity', 'detection_date', 'vessel']
     search_fields = ['description', 'root_cause', 'id']
     readonly_fields = ['created_by', 'created_at', 'updated_at']
     date_hierarchy = 'detection_date'
@@ -64,7 +64,7 @@ class NonConformityAdmin(admin.ModelAdmin):
         ('Basic Information', {
             'fields': [
                 'description', 'detection_date', 'source_type', 'source_id', 
-                'severity', 'vessel_id', 'status'
+                'severity', 'vessel', 'status'
             ]
         }),
         ('Analysis', {

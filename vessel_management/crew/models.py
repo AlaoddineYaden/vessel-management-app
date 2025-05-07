@@ -3,7 +3,7 @@ from django.db import models
 from django.utils import timezone
 from django.core.validators import RegexValidator
 from django.conf import settings
-from core.models import BaseModel
+from core.models import BaseModel, Vessel
 
 
 class Crew(models.Model):
@@ -118,19 +118,6 @@ class CrewCertificate(models.Model):
     
     class Meta:
         unique_together = ('crew', 'certificate_type', 'certificate_number')
-
-
-class Vessel(models.Model):
-    """
-    Minimal model representing vessels for crew assignments.
-    """
-    id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=100)
-    imo_number = models.CharField(max_length=20, unique=True)
-    vessel_type = models.CharField(max_length=50)
-    
-    def __str__(self):
-        return f"{self.name} (IMO: {self.imo_number})"
 
 
 class CrewAssignment(models.Model):

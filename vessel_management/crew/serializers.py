@@ -1,6 +1,7 @@
 # crew/serializers.py
 from rest_framework import serializers
-from .models import Crew, CrewCertificate, CrewAssignment, Vessel, CertificateNotification
+from .models import Crew, CrewCertificate, CrewAssignment, CertificateNotification
+from core.models import Vessel
 
 
 class CrewCertificateSerializer(serializers.ModelSerializer):
@@ -71,7 +72,7 @@ class CrewDetailSerializer(serializers.ModelSerializer):
 class VesselSerializer(serializers.ModelSerializer):
     class Meta:
         model = Vessel
-        fields = ['id', 'name', 'imo_number', 'vessel_type']
+        fields = ['id', 'name', 'imo_number', 'vessel_type', 'flag', 'build_year', 'is_active']
         ref_name = "CrewVessel"
 
 

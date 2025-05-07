@@ -14,6 +14,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
+        ('core', '0001_initial'),
     ]
 
     operations = [
@@ -37,7 +38,7 @@ class Migration(migrations.Migration):
             name='ComplianceItem',
             fields=[
                 ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
-                ('vessel_id', models.UUIDField(help_text='Reference to vessel in the main application')),
+                ('vessel', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='compliance_items', to='core.vessel')),
                 ('compliance_status', models.CharField(choices=[('compliant', 'Compliant'), ('non_compliant', 'Non-Compliant'), ('partially_compliant', 'Partially Compliant'), ('not_applicable', 'Not Applicable'), ('pending_review', 'Pending Review')], default='pending_review', max_length=20)),
                 ('risk_level', models.CharField(choices=[('low', 'Low'), ('medium', 'Medium'), ('high', 'High')], default='medium', max_length=10)),
                 ('assessment_date', models.DateTimeField(default=django.utils.timezone.now)),
@@ -90,7 +91,7 @@ class Migration(migrations.Migration):
         ),
         migrations.AddIndex(
             model_name='complianceitem',
-            index=models.Index(fields=['vessel_id'], name='ism_complia_vessel__71e5ca_idx'),
+            index=models.Index(fields=['vessel'], name='ism_complia_vessel_idx'),
         ),
         migrations.AddIndex(
             model_name='complianceitem',
@@ -100,8 +101,11 @@ class Migration(migrations.Migration):
             model_name='complianceitem',
             index=models.Index(fields=['assessment_date'], name='ism_complia_assessm_cc1b3b_idx'),
         ),
-        migrations.AlterUniqueTogether(
-            name='complianceitem',
-            unique_together={('ism_requirement', 'vessel_id')},
+        migrations.AddConstraint(
+            model_name='complianceitem',
+            constraint=models.UniqueConstraint(
+                fields=('ism_requirement', 'vessel'),
+                name='unique_requirement_vessel'
+            ),
         ),
     ]
