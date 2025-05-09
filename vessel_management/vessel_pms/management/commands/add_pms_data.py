@@ -102,49 +102,53 @@ class Command(BaseCommand):
                 'equipment': created_equipment['Main Engine'],
                 'task_name': 'Main Engine Oil Change',
                 'description': 'Change main engine lubricating oil',
-                'interval_unit': 'hours',
+                'interval_type': 'running_hours',
                 'interval_value': 1000,
-                'last_completed': today - timedelta(days=30),
-                'next_due': today + timedelta(days=30),
-                'estimated_duration': 240,  # minutes
-                'required_parts': 'Engine oil filters, O-rings, Gaskets',
-                'safety_instructions': 'Ensure engine is stopped and cooled down before starting maintenance'
+                'last_completed_date': timezone.now() - timedelta(days=30),
+                'next_due_date': timezone.now() + timedelta(days=30),
+                'status': 'scheduled',
+                'responsible_role': 'Chief Engineer',
+                'instructions': 'Ensure engine is stopped and cooled down before starting maintenance. Replace oil filters and gaskets.',
+                'comments': 'Standard maintenance procedure'
             },
             {
                 'equipment': created_equipment['Main Engine'],
                 'task_name': 'Cylinder Head Inspection',
                 'description': 'Inspect cylinder heads for wear and damage',
-                'interval_unit': 'hours',
+                'interval_type': 'running_hours',
                 'interval_value': 2000,
-                'last_completed': today - timedelta(days=45),
-                'next_due': today + timedelta(days=45),
-                'estimated_duration': 480,
-                'required_parts': 'Gaskets, O-rings',
-                'safety_instructions': 'Follow proper lockout/tagout procedures'
+                'last_completed_date': timezone.now() - timedelta(days=45),
+                'next_due_date': timezone.now() + timedelta(days=45),
+                'status': 'scheduled',
+                'responsible_role': 'Chief Engineer',
+                'instructions': 'Follow proper lockout/tagout procedures. Inspect for wear, cracks, and proper sealing.',
+                'comments': 'Requires engine shutdown'
             },
             {
                 'equipment': created_equipment['Auxiliary Engine #1'],
                 'task_name': 'Fuel Filter Replacement',
                 'description': 'Replace fuel filters',
-                'interval_unit': 'hours',
+                'interval_type': 'running_hours',
                 'interval_value': 500,
-                'last_completed': today - timedelta(days=15),
-                'next_due': today + timedelta(days=15),
-                'estimated_duration': 120,
-                'required_parts': 'Fuel filters, O-rings',
-                'safety_instructions': 'Ensure proper ventilation'
+                'last_completed_date': timezone.now() - timedelta(days=15),
+                'next_due_date': timezone.now() + timedelta(days=15),
+                'status': 'scheduled',
+                'responsible_role': 'Second Engineer',
+                'instructions': 'Ensure proper ventilation. Replace filters and check for leaks.',
+                'comments': 'Regular maintenance task'
             },
             {
                 'equipment': created_equipment['Radar System'],
                 'task_name': 'Radar System Calibration',
                 'description': 'Calibrate radar system',
-                'interval_unit': 'months',
-                'interval_value': 6,
-                'last_completed': today - timedelta(days=90),
-                'next_due': today + timedelta(days=90),
-                'estimated_duration': 180,
-                'required_parts': None,
-                'safety_instructions': 'Follow radiation safety procedures'
+                'interval_type': 'semi_annual',
+                'interval_value': 1,
+                'last_completed_date': timezone.now() - timedelta(days=90),
+                'next_due_date': timezone.now() + timedelta(days=90),
+                'status': 'scheduled',
+                'responsible_role': 'Electro-Technical Officer',
+                'instructions': 'Follow radiation safety procedures. Calibrate according to manufacturer specifications.',
+                'comments': 'Critical for navigation safety'
             }
         ]
 
@@ -157,12 +161,12 @@ class Command(BaseCommand):
                 history = MaintenanceHistory.objects.create(
                     task=task,
                     equipment=task.equipment,
-                    completed_date=task.last_completed,
+                    completed_date=task.last_completed_date,
                     completed_by=system_user,
                     remarks='Routine maintenance completed',
-                    running_hours=task.equipment.running_hours if hasattr(task.equipment, 'running_hours') else None,
+                    running_hours=1000,  # Example value
                     parts_used='Standard replacement parts',
-                    duration=task.estimated_duration
+                    duration=240  # Example duration in minutes
                 )
                 self.stdout.write(f'Created maintenance history for: {task.task_name}')
 
