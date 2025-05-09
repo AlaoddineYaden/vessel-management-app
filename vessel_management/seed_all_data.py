@@ -40,6 +40,7 @@ def main():
         'add_ism_data',
         'add_reporting_data',
         'add_pms_data',
+        'add_certificate_data',
         'import_remorqueur_data'  # Add the new command
     ]
     
