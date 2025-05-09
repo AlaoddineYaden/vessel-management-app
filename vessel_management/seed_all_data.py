@@ -5,12 +5,13 @@ from django.core.management import call_command
 from django.core.management.base import CommandError
 
 # Add the project root directory to Python path
-project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.append(project_root)
+project_root = os.path.dirname(os.path.abspath(__file__))
+parent_dir = os.path.dirname(project_root)
+sys.path.append(parent_dir)
 
 def setup_django():
     """Setup Django environment"""
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'vessel_management.config.settings')
     django.setup()
 
 def run_command(command_name):
@@ -32,17 +33,19 @@ def main():
     
     # List of all management commands to run
     commands = [
+        'add_vessel_data',  # Add this first to ensure vessels exist
         'add_crew_data',
         'add_safety_data',
         'add_nc_data',
         'add_ism_data',
         'add_reporting_data',
-        'add_pms_data'
+        'add_pms_data',
+        'import_remorqueur_data'  # Add the new command
     ]
     
     print("\nStarting data seeding process...")
     print("This will populate the database with sample data for all modules.")
-    print("Make sure you have run migrations and created a vessel first!\n")
+    print("Make sure you have run migrations first!\n")
     
     # Run each command in sequence
     for command in commands:
