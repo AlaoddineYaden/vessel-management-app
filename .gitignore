@@ -66,8 +66,6 @@ logs/
 *.sqlite-journal
 
 # Media and static files
-media/
-static/
 uploads/
 *.jpg
 *.jpeg
