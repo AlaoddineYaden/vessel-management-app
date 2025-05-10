@@ -64,6 +64,7 @@ def send_welcome_email(user):
         <li>Username: {user.username}</li>
         <li>Email: {user.email}</li>
         <li>Role: {user.get_role_display()}</li>
+        
     </ul>
     <p>You can now log in to the system using your email and password.</p>
     <p>Thank you for joining us!</p>

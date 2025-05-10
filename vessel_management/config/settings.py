@@ -254,7 +254,7 @@ JAZZMIN_SETTINGS = {
     # "search_model": "auth.User",
     
     # Field name on user model that contains avatar ImageField/URLField/Charfield or a callable that receives the user
-    "user_avatar": lambda user: user.profile.profile_picture.url if hasattr(user, 'profile') and user.profile.profile_picture else None,
+    "user_avatar": lambda user: user.profile.profile_picture.url if hasattr(user, 'profile') and user.profile.profile_picture else '/static/images/default_profile.jpg',
     
     ############
     # Top Menu #
