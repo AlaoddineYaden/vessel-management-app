@@ -61,14 +61,31 @@ class CrewAdmin(admin.ModelAdmin):
 @admin.register(CrewCertificate)
 class CrewCertificateAdmin(admin.ModelAdmin):
     list_display = ('certificate_name', 'crew_name', 'certificate_type', 
-                   'issue_date', 'expiry_date', 'expiry_status')
+                   'issue_date', 'colored_expiry_date', 'expiry_status')
     list_filter = ('certificate_type', 'issuing_authority')
     search_fields = ('certificate_name', 'certificate_number', 'crew__name')
     list_per_page = 20
     def crew_name(self, obj):
         return obj.crew.name
-    
     crew_name.short_description = "Crew Member"
+    def colored_expiry_date(self, obj):
+        today = timezone.now().date()
+        days_to_expiry = (obj.expiry_date - today).days
+        if days_to_expiry < 0:
+            color = '#ffcdd2'  # red
+        elif days_to_expiry <= 7:
+            color = '#ffe0b2'  # orange
+        elif days_to_expiry <= 30:
+            color = '#fff9c4'  # yellow
+        else:
+            color = 'inherit'
+        return format_html(
+            '<div style="background-color: {}; padding: 4px;">{}</div>',
+            color,
+            obj.expiry_date.strftime('%b %d, %Y')
+        )
+    colored_expiry_date.short_description = 'Expiry date'
+    colored_expiry_date.admin_order_field = 'expiry_date'
     
     def expiry_status(self, obj):
         today = timezone.now().date()

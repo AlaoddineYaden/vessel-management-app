@@ -62,7 +62,7 @@ ROOT_URLCONF = 'config.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -117,10 +117,11 @@ USE_I18N = True
 USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
-
-
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_DIRS = [
+    BASE_DIR / 'static',
+]
 
 # Media files (Uploaded files)
 MEDIA_URL = 'media/'
@@ -245,7 +246,7 @@ JAZZMIN_SETTINGS = {
     "copyright": "Vessel Management Ltd",
     
     # The model admin to search from the search bar, search bar omitted if excluded
-    "search_model": "auth.User",
+    # "search_model": "auth.User",
     
     # Field name on user model that contains avatar ImageField/URLField/Charfield or a callable that receives the user
     "user_avatar": None,
@@ -266,7 +267,9 @@ JAZZMIN_SETTINGS = {
         {"model": "auth.User"},
         
         # App with dropdown menu to all its models pages (Permissions checked against models)
-        {"app": "vessel_reporting"},
+        # {"app": "vessel_reporting", "label": "Reports"},
+       
+        
     ],
     
     #############
@@ -354,24 +357,24 @@ JAZZMIN_SETTINGS = {
 
 JAZZMIN_UI_TWEAKS = {
     "navbar_small_text": False,
-    "footer_small_text": False,
+    "footer_small_text": True,
     "body_small_text": False,
     "brand_small_text": False,
     "brand_colour": "navbar-primary",
     "accent": "accent-primary",
-    "navbar": "navbar-dark",
+    "navbar": "navbar-primary navbar-dark",
     "no_navbar_border": False,
     "navbar_fixed": False,
     "layout_boxed": False,
     "footer_fixed": False,
-    "sidebar_fixed": False,
+    "sidebar_fixed": True,
     "sidebar": "sidebar-dark-primary",
     "sidebar_nav_small_text": False,
     "sidebar_disable_expand": False,
     "sidebar_nav_child_indent": False,
     "sidebar_nav_compact_style": False,
     "sidebar_nav_legacy_style": False,
-    "sidebar_nav_flat_style": False,
+    "sidebar_nav_flat_style": True,
     "theme": "default",
     "dark_mode_theme": None,
     "button_classes": {
@@ -383,5 +386,3 @@ JAZZMIN_UI_TWEAKS = {
         "success": "btn-success"
     }
 }
-
-# ... existing code ...
