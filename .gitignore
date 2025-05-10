@@ -65,17 +65,7 @@ logs/
 *.sqlite
 *.sqlite-journal
 
-# Media and static files
-uploads/
-*.jpg
-*.jpeg
-*.png
-*.gif
-*.ico
-*.pdf
-*.mp4
-*.mov
-*.avi
+
 
 # Node modules and frontend build
 node_modules/
