@@ -124,12 +124,17 @@ STATICFILES_DIRS = [
 ]
 
 # Media files (Uploaded files)
-MEDIA_URL = 'media/'
+MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 # Create media directory if it doesn't exist
 if not os.path.exists(MEDIA_ROOT):
     os.makedirs(MEDIA_ROOT)
+
+# Create profile pictures directory if it doesn't exist
+PROFILE_PICTURES_DIR = MEDIA_ROOT / 'profile_pictures'
+if not os.path.exists(PROFILE_PICTURES_DIR):
+    os.makedirs(PROFILE_PICTURES_DIR)
 
 # Create reports directory if it doesn't exist
 REPORTS_DIR = MEDIA_ROOT / 'reports'
@@ -249,7 +254,7 @@ JAZZMIN_SETTINGS = {
     # "search_model": "auth.User",
     
     # Field name on user model that contains avatar ImageField/URLField/Charfield or a callable that receives the user
-    "user_avatar": None,
+    "user_avatar": lambda user: user.profile.profile_picture.url if hasattr(user, 'profile') and user.profile.profile_picture else None,
     
     ############
     # Top Menu #
@@ -299,7 +304,7 @@ JAZZMIN_SETTINGS = {
     "hide_models": [],
     
     # List of apps (and/or models) to base side menu ordering off of (does not need to contain all apps/models)
-    "order_with_respect_to": ["auth", "vessel_reporting"],
+    "order_with_respect_to": [],
     
     # Custom links to append to app groups, keyed on app name
     # "custom_links": {

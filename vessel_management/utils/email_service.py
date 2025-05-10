@@ -1,27 +1,30 @@
 # 13. utils/email_service.py
 from django.conf import settings
-import sendgrid
-from sendgrid.helpers.mail import Mail, Email, To, Content
-from sendgrid import SendGridAPIClient
+from django.core.mail import send_mail
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
+from django.utils import timezone
 
 def send_email(to_email, subject, content, from_email=None):
     """
-    Generic function to send emails using SendGrid.
+    Generic function to send emails using Django's email backend.
     """
     if not from_email:
         from_email = settings.DEFAULT_FROM_EMAIL
     
-    message = Mail(
-        from_email=from_email,
-        to_emails=to_email,
-        subject=subject,
-        html_content=content
-    )
-    
     try:
-        sg = SendGridAPIClient(settings.SENDGRID_API_KEY)
-        response = sg.send(message)
-        return response.status_code
+        # Convert HTML content to plain text for email clients that don't support HTML
+        plain_message = strip_tags(content)
+        
+        send_mail(
+            subject=subject,
+            message=plain_message,
+            from_email=from_email,
+            recipient_list=[to_email],
+            html_message=content,
+            fail_silently=False,
+        )
+        return 200  # Return success status code
     except Exception as e:
         # Log error
         from core.models import SystemLog
@@ -47,7 +50,7 @@ def send_password_reset_email(to_email, token):
     """
     
     return send_email(to_email, subject, content)
-# 13. utils/email_service.py (continued)
+
 def send_welcome_email(user):
     """
     Send welcome email to newly registered users.
@@ -64,6 +67,20 @@ def send_welcome_email(user):
     </ul>
     <p>You can now log in to the system using your email and password.</p>
     <p>Thank you for joining us!</p>
+    """
+    
+    return send_email(user.email, subject, content)
+
+def send_password_change_notification(user):
+    """
+    Send notification email when user changes their password.
+    """
+    subject = "Password Changed Successfully"
+    content = f"""
+    <p>Hello {user.first_name},</p>
+    <p>Your password has been successfully changed.</p>
+    <p>If you did not make this change, please contact the system administrator immediately.</p>
+    <p>Time of change: {timezone.now().strftime('%Y-%m-%d %H:%M:%S')}</p>
     """
     
     return send_email(user.email, subject, content)

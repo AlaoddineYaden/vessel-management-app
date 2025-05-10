@@ -12,7 +12,7 @@ from .serializers import (
     UserSerializer, UserRegistrationSerializer, PasswordResetRequestSerializer,
     PasswordResetConfirmSerializer, PasswordChangeSerializer
 )
-from utils.email_service import send_password_reset_email
+from utils.email_service import send_password_reset_email, send_welcome_email, send_password_change_notification
 
 User = get_user_model()
 
@@ -94,27 +94,32 @@ class PasswordResetConfirmView(APIView):
             )
 
 class PasswordChangeView(APIView):
-    permission_classes = (permissions.IsAuthenticated,)
-    serializer_class = PasswordChangeSerializer
-    
+    permission_classes = [permissions.IsAuthenticated]
+
     def post(self, request):
-        serializer = self.serializer_class(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        
+        old_password = request.data.get('old_password')
+        new_password = request.data.get('new_password')
+
+        if not old_password or not new_password:
+            return Response({
+                'error': 'Both old and new passwords are required'
+            }, status=status.HTTP_400_BAD_REQUEST)
+
         user = request.user
-        old_password = serializer.validated_data['old_password']
-        new_password = serializer.validated_data['new_password']
-        
-        if not user.check_password(old_password):
-            return Response(
-                {"error": "Current password is incorrect."},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        
-        user.set_password(new_password)
+
+        # Verify old password
+        if not check_password(old_password, user.password):
+            return Response({
+                'error': 'Invalid old password'
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        # Set new password
+        user.password = make_password(new_password)
         user.save()
-        
-        return Response(
-            {"message": "Password changed successfully."},
-            status=status.HTTP_200_OK
-        )
+
+        # Send password change notification email
+        send_password_change_notification(user)
+
+        return Response({
+            'message': 'Password changed successfully'
+        }, status=status.HTTP_200_OK)
