@@ -336,7 +336,7 @@ JAZZMIN_SETTINGS = {
     #################
     # Use modals instead of popups
     "related_modal_active": False,
-    
+   
     #############
     # UI Tweaks #
     #############
@@ -357,7 +357,6 @@ JAZZMIN_SETTINGS = {
     # - carousel
     "changeform_format": "horizontal_tabs",
     # override change forms on a per modeladmin basis
-    "changeform_format_overrides": {"auth.user": "collapsible", "auth.group": "vertical_tabs"},
 }
 
 JAZZMIN_UI_TWEAKS = {

@@ -1,0 +1,7 @@
+"Report Generated On","2025-05-01 21:16:26"
+
+"Field","Value"
+"Vessel Id","1"
+"Report Date","2025-05-01T21:16:26.689355+00:00"
+"Data > Maintenance Tasks","{'id': 1, 'description': 'Engine oil change', 'status': 'COMPLETED'}; {'id': 2, 'description': 'Fire extinguisher check', 'status': 'PENDING'}"
+"Data > Certificates","{'id': 1, 'name': 'Safety Management Certificate', 'expiry_date': '2024-12-31'}; {'id': 2, 'name': 'Class Certificate', 'expiry_date': '2024-06-30'}"
